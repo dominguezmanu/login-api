@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: login_mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: login_db
+      MYSQL_USER: login_user
+      MYSQL_PASSWORD: login123
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api:
+    build: .
+    container_name: login_api
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: login_user
+      DB_PASSWORD: login123
+      DB_NAME: login_db
+      PORT: 3000
+
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
